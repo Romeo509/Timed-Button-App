@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timed Button App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin-top: 10px;
+            cursor: pointer;
+            display: none;
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="button1">Button 1 (Every 2 Minutes)</button>
+        <button id="button2">Button 2 (Specific Date: 9/6/2024)</button>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // Function to check the first button (appears every 2 minutes)
+        function check2MinButton() {
+            fetch('/check-2min-button', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.show_button) {
+                        document.getElementById('button1').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('button1').style.display = 'none';
+                    }
+                });
+        }
+
+        // Function to check the second button (appears on 9/6/2024)
+        function checkDateButton() {
+            fetch('/check-date-button', { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.show_button) {
+                        document.getElementById('button2').style.display = 'inline-block';
+                    } else {
+                        document.getElementById('button2').style.display = 'none';
+                    }
+                });
+        }
+
+        // Function to handle button click and display the message
+        function handleClick(buttonId, url) {
+            fetch(url, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('message').textContent = data.message;
+                    document.getElementById(buttonId).style.display = 'none'; // Hide the clicked button
+                });
+        }
+
+        // Add event listeners to the buttons
+        document.getElementById('button1').addEventListener('click', function() {
+            handleClick('button1', '/first-button-click');
+        });
+
+        document.getElementById('button2').addEventListener('click', function() {
+            handleClick('button2', '/second-button-click');
+        });
+
+        // Re-check every second for both buttons
+        setInterval(check2MinButton, 1000);  // Check every second if 2 minutes have passed
+        setInterval(checkDateButton, 1000);  // Check every second if today is 9/6/2024
+    </script>
+</body>
+</html>
